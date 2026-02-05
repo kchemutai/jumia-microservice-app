@@ -10,6 +10,8 @@ spring:
         git:
           uri: https://github.com/kchemutai/spring-app-config
           clone-on-start: true
+
+
 eureka:
   instance:
     prefer-ip-address: true
