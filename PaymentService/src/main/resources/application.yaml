@@ -1,0 +1,26 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:PAYMENT-SERVICE}
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:paymentdb}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:cher5650}
+    driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+
+  jpa:
+    database-platform: ${JPA_DIALECT:org.hibernate.dialect.MySQL8Dialect}
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+
+  config:
+    import: ${CONFIG_IMPORT:configserver:http://${CONFIG_SERVER_URL:localhost}:9296}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:https://dev-zr0bjq7fak6byyl5.us.auth0.com/}

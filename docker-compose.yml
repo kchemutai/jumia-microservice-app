@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  serviceregistry:
+    image: kchemutai/serviceregistry:latest
+    container_name: serviceregistry
+    ports:
+      - "8761:8761"
+
+  configserver:
+    image: kchemutai/configserver:latest
+    container_name: configserver
+    ports:
+      - "9296:9296"
+    environment:
+      EUREKA_SERVER_ADDRESS: http://serviceregistry:8761/eureka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9296/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - serviceregistry
+
+  cloudgateway:
+    image: kchemutai/cloudgateway:latest
+    container_name: cloudgateway
+    ports:
+      - "9090:9090"
+    environment:
+      EUREKA_SERVER_ADDRESS: http://serviceregistry:8761/eureka
+      CONFIG_SERVER_URL: configserver
+    depends_on:
+      configserver:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: cher5650
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: >
+      bash -c "
+      docker-entrypoint.sh mysqld &
+      sleep 15 &&
+      mysql -uroot -pcher5650 -e '
+        CREATE DATABASE IF NOT EXISTS productdb;
+        CREATE DATABASE IF NOT EXISTS orderdb;
+        CREATE DATABASE IF NOT EXISTS paymentdb;
+      ' &&
+      wait
+      "
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pcher5650"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  productservice:
+    image: kchemutai/productservice:latest
+    container_name: productservice
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_APPLICATION_NAME: PRODUCT-SERVICE
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: productdb
+      DB_USERNAME: root
+      DB_PASSWORD: cher5650
+      CONFIG_SERVER_URL: configserver
+      EUREKA_SERVER_ADDRESS: http://serviceregistry:8761/eureka
+    depends_on:
+      mysql:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+
+  orderservice:
+    image: kchemutai/orderservice:latest
+    container_name: orderservice
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT: 8082
+      SPRING_APPLICATION_NAME: ORDER-SERVICE
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: orderdb
+      DB_USERNAME: root
+      DB_PASSWORD: cher5650
+      CONFIG_SERVER_URL: configserver
+      EUREKA_SERVER_ADDRESS: http://serviceregistry:8761/eureka
+    depends_on:
+      mysql:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+
+  paymentservice:
+    image: kchemutai/paymentservice:latest
+    container_name: paymentservice
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      SPRING_APPLICATION_NAME: PAYMENT-SERVICE
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: paymentdb
+      DB_USERNAME: root
+      DB_PASSWORD: cher5650
+      CONFIG_SERVER_URL: configserver
+      EUREKA_SERVER_ADDRESS: http://serviceregistry:8761/eureka
+    depends_on:
+      mysql:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

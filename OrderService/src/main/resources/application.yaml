@@ -1,0 +1,39 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:ORDER-SERVICE}
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:orderdb}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:cher5650}
+    driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+
+  jpa:
+    database-platform: ${JPA_DIALECT:org.hibernate.dialect.MySQL8Dialect}
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+
+  config:
+    import: ${CONFIG_IMPORT:configserver:http://${CONFIG_SERVER_URL:localhost}:9296}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:https://dev-zr0bjq7fak6byyl5.us.auth0.com/}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      external:
+        event-consumer-buffer-size: ${CB_EVENT_BUFFER_SIZE:10}
+        failure-rate-threshold: ${CB_FAILURE_RATE_THRESHOLD:50}
+        minimum-number-of-calls: ${CB_MIN_CALLS:5}
+        automatic-transition-from-open-to-half-open-enabled: ${CB_AUTO_TRANSITION:true}
+        wait-duration-in-open-state: ${CB_WAIT_DURATION:5s}
+        permitted-number-of-calls-in-half-open-state: ${CB_HALF_OPEN_CALLS:3}
+        sliding-window-size: ${CB_WINDOW_SIZE:10}
+        sliding-window-type: ${CB_WINDOW_TYPE:COUNT_BASED}
