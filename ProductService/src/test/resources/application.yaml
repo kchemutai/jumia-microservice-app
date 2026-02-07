@@ -12,7 +12,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-zr0bjq7fak6byyl5.us.auth0.com/
+          issuer-uri: ${OAUTH2_ISSUER_URI:https://dev-zr0bjq7fak6byyl5.us.auth0.com/}
 
 
 eureka:

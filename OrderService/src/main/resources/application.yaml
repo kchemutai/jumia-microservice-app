@@ -6,7 +6,7 @@ spring:
     name: ${SPRING_APPLICATION_NAME:ORDER-SERVICE}
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:orderdb}
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/orderdb
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:cher5650}
     driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
@@ -17,7 +17,7 @@ spring:
       ddl-auto: ${JPA_DDL_AUTO:update}
 
   config:
-    import: ${CONFIG_IMPORT:configserver:http://${CONFIG_SERVER_URL:localhost}:9296}
+    import: configserver:${CONFIG_SERVER_URL:http://localhost:9296}
 
   security:
     oauth2:

@@ -5,7 +5,7 @@ spring:
   application:
     name: API-GATEWAY
   config:
-    import: optional:configserver:http://${CONFIG_SERVER_URL:localhost}:9296
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:9296}
   cloud:
     gateway:
       default-filters:
